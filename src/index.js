@@ -41,7 +41,7 @@ export function parseMarkdownBrief(body, source = 'inline.md') {
       action: readToken(rest, 'action') || inferAction(rest),
       message: readToken(rest, 'message') || rest.replace(/\s*(approval|rollback|action)=.*$/i, '').trim(),
       approval: readToken(rest, 'approval') || inferApproval(target),
-      rollback: readToken(rest, 'rollback') || 'Document manual rollback before execution',
+      rollback: readToken(rest, 'rollback') || '',
       evidence: readToken(rest, 'evidence') || ''
     };
   });
