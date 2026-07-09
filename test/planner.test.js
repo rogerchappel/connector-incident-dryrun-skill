@@ -27,3 +27,9 @@ test('formats markdown and json reports', () => {
   assert.match(formatPlan(plan, 'markdown'), /Connector Incident Dry-Run Plan/);
   assert.match(formatPlan(plan, 'json'), /"approvalRequired": 2/);
 });
+
+test('classifies unknown connector targets as external writes', () => {
+  const plan = parseMarkdownBrief('# Test\nSeverity: sev2\n\n- [webhook] action=post; message=notify system; approval=required; rollback=send correction');
+  assert.equal(plan.actions[0].sideEffect, 'external-write');
+  assert.equal(plan.actions[0].approval, 'required');
+});
