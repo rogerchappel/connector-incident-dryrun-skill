@@ -1,0 +1,28 @@
+{
+  "incident": "API error budget burn",
+  "severity": "sev1",
+  "actions": [
+    {
+      "target": "crm",
+      "action": "note",
+      "message": "Add customer-facing incident note to affected account timeline",
+      "approval": "required",
+      "rollback": "Append correction note and notify account owner",
+      "evidence": "customer impact list"
+    },
+    {
+      "target": "pager",
+      "action": "handoff",
+      "message": "Escalate to secondary on-call after 20 minutes without mitigation",
+      "approval": "preapproved",
+      "rollback": "Cancel escalation if primary acknowledges before handoff"
+    },
+    {
+      "target": "notes",
+      "action": "record",
+      "message": "Record timeline checkpoint locally",
+      "approval": "optional",
+      "rollback": "Edit local timeline entry"
+    }
+  ]
+}
