@@ -1,0 +1,24 @@
+{
+  "name": "connector-incident-dryrun-skill",
+  "version": "0.1.0",
+  "description": "Dry-run incident connector actions with approvals, evidence, and rollback notes.",
+  "type": "module",
+  "bin": {
+    "connector-incident-dryrun": "./bin/connector-incident-dryrun.js"
+  },
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node scripts/check.mjs",
+    "build": "node scripts/build.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "keywords": ["agent-skills", "incident-response", "connectors", "dry-run"],
+  "author": "Roger Chappel",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}
