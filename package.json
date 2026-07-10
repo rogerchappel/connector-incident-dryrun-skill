@@ -14,7 +14,7 @@
     "check": "node scripts/check.mjs",
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "node scripts/package-smoke.mjs",
     "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [
@@ -38,7 +38,11 @@
     "docs",
     "fixtures",
     "scripts",
+    "SKILL.md",
     "README.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
     "LICENSE"
   ]
 }
