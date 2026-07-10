@@ -44,5 +44,9 @@
     "CONTRIBUTING.md",
     "CHANGELOG.md",
     "LICENSE"
-  ]
+  ],
+  "bugs": {
+    "url": "https://github.com/rogerchappel/connector-incident-dryrun-skill/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/connector-incident-dryrun-skill#readme"
 }
