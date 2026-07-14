@@ -15,7 +15,8 @@
       "action": "handoff",
       "message": "Escalate to secondary on-call after 20 minutes without mitigation",
       "approval": "preapproved",
-      "rollback": "Cancel escalation if primary acknowledges before handoff"
+      "rollback": "Cancel escalation if primary acknowledges before handoff",
+      "evidence": "pager handoff dry-run receipt"
     },
     {
       "target": "notes",

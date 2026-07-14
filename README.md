@@ -40,6 +40,19 @@ Severity: sev2
 }
 ```
 
+## Verification
+
+Run the same checks used for release-readiness before publishing or opening a release PR:
+
+```bash
+npm run check
+npm test
+npm run build
+npm run smoke
+npm run release:check
+npm pack --dry-run
+```
+
 ## CLI
 
 ```bash
@@ -50,6 +63,8 @@ connector-incident-dryrun plan <brief.md|brief.json> --fail-on issues
 ```
 
 Exit code `2` means the selected fail gate found approval-required actions or validation issues.
+
+External connector actions must include evidence notes, such as a dry-run payload, tracking issue URL, or receipt path. Local notes do not require evidence.
 
 ## Safety Boundaries
 
