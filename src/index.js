@@ -68,6 +68,7 @@ export function normalizeActions(actions) {
   return actions.map((action, index) => {
     const target = String(action.target || 'notes').toLowerCase();
     const approval = action.approval || inferApproval(target);
+    const sideEffect = TARGET_SIDE_EFFECT[target] || 'external-write';
     return {
       id: action.id || `action-${index + 1}`,
       target,
@@ -76,8 +77,8 @@ export function normalizeActions(actions) {
       approval,
       rollback: action.rollback || '',
       evidence: action.evidence || '',
-      sideEffect: TARGET_SIDE_EFFECT[target] || 'external-write',
-      issues: validateAction({ ...action, target, approval })
+      sideEffect,
+      issues: validateAction({ ...action, target, approval, sideEffect })
     };
   });
 }
@@ -86,6 +87,9 @@ export function validateAction(action) {
   const issues = [];
   for (const field of ['target', 'action', 'message', 'approval', 'rollback']) {
     if (!action[field] || String(action[field]).trim() === '') issues.push(`missing ${field}`);
+  }
+  if (action.sideEffect !== 'local-note' && (!action.evidence || String(action.evidence).trim() === '')) {
+    issues.push('missing evidence');
   }
   if (action.approval && !['required', 'optional', 'preapproved'].includes(action.approval)) issues.push(`invalid approval ${action.approval}`);
   return issues;
