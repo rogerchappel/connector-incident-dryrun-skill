@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Require evidence notes for external connector side effects and run the full release gate in CI.
 - Add release-readiness checks for package metadata, pack contents, and CI verification.
 ## 0.1.0
 

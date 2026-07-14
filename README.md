@@ -64,6 +64,8 @@ connector-incident-dryrun plan <brief.md|brief.json> --fail-on issues
 
 Exit code `2` means the selected fail gate found approval-required actions or validation issues.
 
+External connector actions must include evidence notes, such as a dry-run payload, tracking issue URL, or receipt path. Local notes do not require evidence.
+
 ## Safety Boundaries
 
 This package never calls external APIs and never performs live connector writes. It only reads local brief files and prints plans. Approval-required actions should remain blocked until a human operator approves the exact target, message, and rollback path.
