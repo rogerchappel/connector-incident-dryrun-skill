@@ -56,13 +56,17 @@ npm pack --dry-run
 ## CLI
 
 ```bash
-connector-incident-dryrun plan <brief.md|brief.json> --format markdown
-connector-incident-dryrun plan <brief.md|brief.json> --format json
-connector-incident-dryrun plan <brief.md|brief.json> --fail-on approval
-connector-incident-dryrun plan <brief.md|brief.json> --fail-on issues
+connector-incident-dryrun plan <brief.md|brief.json> [--format markdown|json] [--fail-on approval|issues]
 ```
 
-Exit code `2` means the selected fail gate found approval-required actions or validation issues.
+`--format` defaults to `markdown`; `json` emits the structured plan. `--fail-on
+approval` exits with status `2` when the plan contains approval-required actions,
+while `--fail-on issues` exits with status `2` when any action has validation
+issues.
+
+Unknown options, missing option values, and values outside the choices above are
+usage errors. They write a diagnostic to stderr and exit with status `1` without
+printing a plan. `--help` prints the usage and exits with status `0`.
 
 External connector actions must include evidence notes, such as a dry-run payload, tracking issue URL, or receipt path. Local notes do not require evidence.
 
