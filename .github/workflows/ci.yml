@@ -3,7 +3,12 @@ name: ci
 on:
   pull_request:
   push:
-    branches: [main]
+    branches:
+      - main
+      - release-candidate/connector-incident-dryrun-skill
+
+permissions:
+  contents: read
 
 jobs:
   test:
