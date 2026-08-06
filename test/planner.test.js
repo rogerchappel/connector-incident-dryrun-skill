@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createPlan, formatPlan, parseMarkdownBrief } from '../src/index.js';
+import { createPlan, formatPlan, parseJsonBrief, parseMarkdownBrief } from '../src/index.js';
 
 test('parses markdown connector actions', () => {
   const plan = createPlan('fixtures/slack-update.md');
@@ -15,6 +15,27 @@ test('parses json connector actions', () => {
   assert.equal(plan.severity, 'sev1');
   assert.equal(plan.actions.length, 3);
   assert.equal(plan.summary.approvalRequired, 1);
+});
+
+test('rejects non-object JSON brief roots', () => {
+  for (const body of ['null', '[]', '"incident"', '42', 'true']) {
+    assert.throws(() => parseJsonBrief(body), {
+      message: 'Invalid JSON brief: root must be an object'
+    });
+  }
+});
+
+test('rejects non-array JSON actions', () => {
+  for (const actions of [{}, 'post update', 1, false, null]) {
+    assert.throws(() => parseJsonBrief(JSON.stringify({ incident: 'Test', actions })), {
+      message: 'Invalid JSON brief: "actions" must be an array'
+    });
+  }
+});
+
+test('allows a JSON brief to omit actions', () => {
+  const brief = parseJsonBrief('{"incident":"Observation only"}');
+  assert.deepEqual(brief.actions, []);
 });
 
 test('reports missing rollback as issue', () => {

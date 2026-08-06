@@ -20,11 +20,17 @@ export function loadBrief(file) {
 
 export function parseJsonBrief(body, source = 'inline.json') {
   const parsed = JSON.parse(body);
+  if (parsed === null || Array.isArray(parsed) || typeof parsed !== 'object') {
+    throw new Error('Invalid JSON brief: root must be an object');
+  }
+  if (Object.hasOwn(parsed, 'actions') && !Array.isArray(parsed.actions)) {
+    throw new Error('Invalid JSON brief: "actions" must be an array');
+  }
   return {
     source,
     incident: parsed.incident || parsed.title || 'Untitled incident',
     severity: parsed.severity || 'unknown',
-    actions: normalizeActions(parsed.actions || [])
+    actions: normalizeActions(parsed.actions ?? [])
   };
 }
 

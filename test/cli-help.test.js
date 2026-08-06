@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 
 function invoke(...args) {
@@ -33,5 +36,28 @@ test('CLI entrypoint reports each invalid argument class on stderr', () => {
     assert.equal(result.status, 1);
     assert.equal(result.stdout, '');
     assert.equal(result.stderr, `${error}\n`);
+  }
+});
+
+test('CLI entrypoint rejects malformed JSON brief shapes without a stack trace or plan', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-entrypoint-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const cases = [
+    { body: 'null', error: 'Invalid JSON brief: root must be an object' },
+    { body: '[]', error: 'Invalid JSON brief: root must be an object' },
+    { body: '9', error: 'Invalid JSON brief: root must be an object' },
+    { body: '{"actions":{}}', error: 'Invalid JSON brief: "actions" must be an array' },
+    { body: '{"actions":"post"}', error: 'Invalid JSON brief: "actions" must be an array' },
+    { body: '{"actions":false}', error: 'Invalid JSON brief: "actions" must be an array' }
+  ];
+
+  for (const [index, { body, error }] of cases.entries()) {
+    const file = path.join(directory, `${index}.json`);
+    fs.writeFileSync(file, body);
+    const result = invoke('plan', file, '--format', 'json');
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, '');
+    assert.equal(result.stderr, `${error}\n`);
+    assert.doesNotMatch(result.stderr, /\n\s+at /);
   }
 });

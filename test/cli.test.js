@@ -1,4 +1,7 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 import { run } from '../src/cli.js';
 
@@ -40,6 +43,28 @@ test('cli rejects invalid argument contracts without producing a plan', () => {
   for (const { argv, error } of cases) {
     const { io, stdout, stderr } = capture();
     assert.equal(run(argv, io), 1);
+    assert.deepEqual(stdout, []);
+    assert.deepEqual(stderr, [error]);
+  }
+});
+
+test('cli reports malformed JSON brief shapes without producing a plan', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-brief-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const cases = [
+    { body: 'null', error: 'Invalid JSON brief: root must be an object' },
+    { body: '[]', error: 'Invalid JSON brief: root must be an object' },
+    { body: '"incident"', error: 'Invalid JSON brief: root must be an object' },
+    { body: '{"actions":{}}', error: 'Invalid JSON brief: "actions" must be an array' },
+    { body: '{"actions":"post"}', error: 'Invalid JSON brief: "actions" must be an array' },
+    { body: '{"actions":7}', error: 'Invalid JSON brief: "actions" must be an array' }
+  ];
+
+  for (const [index, { body, error }] of cases.entries()) {
+    const file = path.join(directory, `${index}.json`);
+    fs.writeFileSync(file, body);
+    const { io, stdout, stderr } = capture();
+    assert.equal(run(['plan', file, '--format', 'json'], io), 1);
     assert.deepEqual(stdout, []);
     assert.deepEqual(stderr, [error]);
   }
