@@ -60,7 +60,13 @@ export function run(argv = process.argv.slice(2), io = console) {
     return 1;
   }
 
-  const plan = createPlan(file);
+  let plan;
+  try {
+    plan = createPlan(file);
+  } catch (error) {
+    io.error(error.message);
+    return 1;
+  }
   io.log(formatPlan(plan, args.format || 'markdown'));
   if (args['fail-on'] === 'approval' && plan.summary.approvalRequired > 0) return 2;
   if (args['fail-on'] === 'issues' && plan.summary.withIssues > 0) return 2;
