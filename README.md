@@ -24,6 +24,9 @@ Severity: sev2
 
 ## JSON Brief Format
 
+A JSON brief must have an object at its root. `actions` may be omitted (an empty
+list is assumed), but when present it must be an array of action objects.
+
 ```json
 {
   "incident": "API error budget burn",
@@ -67,6 +70,10 @@ issues.
 Unknown options, missing option values, and values outside the choices above are
 usage errors. They write a diagnostic to stderr and exit with status `1` without
 printing a plan. `--help` prints the usage and exits with status `0`.
+
+Unreadable briefs, invalid JSON, non-object JSON roots, and non-array `actions`
+values are input errors. They also write one diagnostic to stderr, print no plan,
+and exit with status `1`.
 
 External connector actions must include evidence notes, such as a dry-run payload, tracking issue URL, or receipt path. Local notes do not require evidence.
 
