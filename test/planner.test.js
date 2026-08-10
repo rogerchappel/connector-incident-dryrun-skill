@@ -33,6 +33,14 @@ test('rejects non-array JSON actions', () => {
   }
 });
 
+test('rejects non-object JSON action members', () => {
+  for (const action of [null, 'post update', 1, false, []]) {
+    assert.throws(() => parseJsonBrief(JSON.stringify({ incident: 'Test', actions: [action] })), {
+      message: 'Invalid JSON brief: "actions[0]" must be an object'
+    });
+  }
+});
+
 test('allows a JSON brief to omit actions', () => {
   const brief = parseJsonBrief('{"incident":"Observation only"}');
   assert.deepEqual(brief.actions, []);
@@ -52,6 +60,29 @@ test('formats markdown and json reports', () => {
   const plan = createPlan('fixtures/slack-update.md');
   assert.match(formatPlan(plan, 'markdown'), /Connector Incident Dry-Run Plan/);
   assert.match(formatPlan(plan, 'json'), /"approvalRequired": 2/);
+});
+
+test('escapes pipes and normalizes newlines in every markdown table cell', () => {
+  const plan = parseJsonBrief(JSON.stringify({
+    incident: 'Formatting',
+    actions: [{
+      id: 'action|1\ncontinued',
+      target: 'custom|target\ncontinued',
+      action: 'post|update\ncontinued',
+      message: 'message',
+      approval: 'unexpected|approval\ncontinued',
+      rollback: 'delete | correct\nthen notify',
+      evidence: ''
+    }]
+  }));
+
+  const markdown = formatPlan({
+    ...plan,
+    summary: { total: 1, approvalRequired: 0, withIssues: 1 }
+  }, 'markdown');
+  const row = markdown.split('\n').find((line) => line.startsWith('| action'));
+  assert.equal(row, '| action\\|1 continued | custom\\|target continued | post\\|update continued | external-write | unexpected\\|approval continued | delete \\| correct then notify | missing evidence, invalid approval unexpected\\|approval continued |');
+  assert.equal(row.split(/(?<!\\)\|/).length - 1, 8);
 });
 
 test('classifies unknown connector targets as external writes', () => {
