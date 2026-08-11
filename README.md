@@ -71,9 +71,10 @@ Unknown options, missing option values, and values outside the choices above are
 usage errors. They write a diagnostic to stderr and exit with status `1` without
 printing a plan. `--help` prints the usage and exits with status `0`.
 
-Unreadable briefs, invalid JSON, non-object JSON roots, and non-array `actions`
-values are input errors. They also write one diagnostic to stderr, print no plan,
-and exit with status `1`.
+Unreadable briefs, invalid JSON, non-object JSON roots, non-array `actions`
+values, and non-object action members are input errors. They also write one
+diagnostic to stderr, print no plan, and exit with status `1`. Markdown output
+escapes pipe characters and renders line breaks as spaces inside table cells.
 
 External connector actions must include evidence notes, such as a dry-run payload, tracking issue URL, or receipt path. Local notes do not require evidence.
 

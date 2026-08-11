@@ -26,6 +26,11 @@ export function parseJsonBrief(body, source = 'inline.json') {
   if (Object.hasOwn(parsed, 'actions') && !Array.isArray(parsed.actions)) {
     throw new Error('Invalid JSON brief: "actions" must be an array');
   }
+  for (const [index, action] of (parsed.actions ?? []).entries()) {
+    if (action === null || Array.isArray(action) || typeof action !== 'object') {
+      throw new Error(`Invalid JSON brief: "actions[${index}]" must be an object`);
+    }
+  }
   return {
     source,
     incident: parsed.incident || parsed.title || 'Untitled incident',
@@ -114,7 +119,18 @@ export function createPlan(file) {
 
 export function formatPlan(plan, format = 'markdown') {
   if (format === 'json') return JSON.stringify(plan, null, 2);
-  const rows = plan.actions.map((action) => `| ${action.id} | ${action.target} | ${action.action} | ${action.sideEffect} | ${action.approval} | ${action.rollback || 'missing'} | ${action.issues.join(', ') || 'ok'} |`);
+  const rows = plan.actions.map((action) => {
+    const cells = [
+      action.id,
+      action.target,
+      action.action,
+      action.sideEffect,
+      action.approval,
+      action.rollback || 'missing',
+      action.issues.join(', ') || 'ok'
+    ];
+    return `| ${cells.map(formatMarkdownCell).join(' | ')} |`;
+  });
   return [
     '# Connector Incident Dry-Run Plan',
     '',
@@ -128,4 +144,8 @@ export function formatPlan(plan, format = 'markdown') {
     '| --- | --- | --- | --- | --- | --- | --- |',
     ...rows
   ].join('\n');
+}
+
+function formatMarkdownCell(value) {
+  return String(value).replace(/\r\n?|\n/g, ' ').replace(/\|/g, '\\|');
 }

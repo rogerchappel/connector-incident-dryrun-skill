@@ -69,3 +69,18 @@ test('cli reports malformed JSON brief shapes without producing a plan', (t) => 
     assert.deepEqual(stderr, [error]);
   }
 });
+
+test('cli reports invalid JSON action members without producing a plan', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-actions-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const members = [null, 'post update', 7, false, []];
+
+  for (const [index, member] of members.entries()) {
+    const file = path.join(directory, `${index}.json`);
+    fs.writeFileSync(file, JSON.stringify({ incident: 'Test', actions: [{ target: 'notes' }, member] }));
+    const { io, stdout, stderr } = capture();
+    assert.equal(run(['plan', file, '--format', 'markdown'], io), 1);
+    assert.deepEqual(stdout, []);
+    assert.deepEqual(stderr, ['Invalid JSON brief: "actions[1]" must be an object']);
+  }
+});
