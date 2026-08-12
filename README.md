@@ -22,6 +22,10 @@ Severity: sev2
 - [github] action=comment; message=Comment on tracking issue; approval=required; rollback=hide comment and add correction
 ```
 
+Action bullets may be indented, and connector target names are case-insensitive.
+When `approval` is omitted, `notes` defaults to `optional` and other targets
+default to `required`; an explicit approval value is retained.
+
 ## JSON Brief Format
 
 A JSON brief must have an object at its root. `actions` may be omitted (an empty

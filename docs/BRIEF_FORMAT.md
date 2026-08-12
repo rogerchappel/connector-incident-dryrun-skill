@@ -4,7 +4,12 @@ Markdown actions use one line per connector proposal:
 
 ```markdown
 - [slack] action=post; message=Post update; approval=required; rollback=delete message
+  - [Notes] action=note; message=Record local observation; rollback=remove note
 ```
+
+Action bullets may have leading indentation. Connector target matching is
+case-insensitive. If `approval` is omitted, `notes` defaults to `optional` and
+all other targets default to `required`; explicit approval values are preserved.
 
 JSON briefs must use an object at the document root. The optional `actions` field
 defaults to an empty array; when present, it must be an array of action objects
