@@ -42,10 +42,10 @@ export function parseJsonBrief(body, source = 'inline.json') {
 export function parseMarkdownBrief(body, source = 'inline.md') {
   const title = body.match(/^#\s+(.+)$/m)?.[1] || 'Untitled incident';
   const severity = body.match(/^Severity:\s*(.+)$/mi)?.[1]?.trim() || 'unknown';
-  const actionLines = body.split('\n').filter((line) => /^-\s*\[[^\]]+\]/.test(line.trim()));
+  const actionLines = body.split('\n').map((line) => line.trim()).filter((line) => /^-\s*\[[^\]]+\]/.test(line));
   const actions = actionLines.map((line) => {
     const match = line.match(/^-\s*\[([^\]]+)\]\s*(.+)$/);
-    const target = match?.[1]?.trim() || 'notes';
+    const target = (match?.[1]?.trim() || 'notes').toLowerCase();
     const rest = match?.[2] || '';
     return {
       target,

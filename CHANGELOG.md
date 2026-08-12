@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Preserve indented Markdown actions and infer default approvals after case-insensitive target normalization.
 - Reject non-object JSON action members and keep Markdown plan rows structurally valid for pipe- or newline-bearing values.
 - Reject unknown, incomplete, or invalid CLI options instead of silently ignoring them.
 - Require evidence notes for external connector side effects and run the full release gate in CI.

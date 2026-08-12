@@ -51,6 +51,34 @@ test('reports missing rollback as issue', () => {
   assert.equal(plan.actions[0].issues.includes('missing rollback'), true);
 });
 
+test('parses indented markdown action bullets without dropping fields', () => {
+  const plan = parseMarkdownBrief('# Test\nSeverity: sev3\n\n  - [slack] action=comment; message=hello; approval=preapproved; rollback=delete comment; evidence=dry-run receipt');
+  assert.deepEqual(plan.actions[0], {
+    id: 'action-1',
+    target: 'slack',
+    action: 'comment',
+    message: 'hello',
+    approval: 'preapproved',
+    rollback: 'delete comment',
+    evidence: 'dry-run receipt',
+    sideEffect: 'external-message',
+    issues: []
+  });
+});
+
+test('normalizes markdown target case before inferring default approval', () => {
+  const plan = parseMarkdownBrief('# Test\nSeverity: sev3\n\n- [Notes] action=note; message=local note; rollback=remove note');
+  assert.equal(plan.actions[0].target, 'notes');
+  assert.equal(plan.actions[0].sideEffect, 'local-note');
+  assert.equal(plan.actions[0].approval, 'optional');
+  assert.deepEqual(plan.actions[0].issues, []);
+});
+
+test('retains explicit markdown approval when normalizing target case', () => {
+  const plan = parseMarkdownBrief('# Test\nSeverity: sev3\n\n- [Notes] action=note; message=local note; approval=required; rollback=remove note');
+  assert.equal(plan.actions[0].approval, 'required');
+});
+
 test('requires evidence for external connector side effects', () => {
   const plan = parseMarkdownBrief('# Test\nSeverity: sev3\n\n- [slack] action=post; message=hello; approval=required; rollback=delete message');
   assert.equal(plan.actions[0].issues.includes('missing evidence'), true);
