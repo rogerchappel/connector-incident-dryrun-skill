@@ -29,7 +29,11 @@ default to `required`; an explicit approval value is retained.
 ## JSON Brief Format
 
 A JSON brief must have an object at its root. `actions` may be omitted (an empty
-list is assumed), but when present it must be an array of action objects.
+list is assumed), but when present it must be an array of action objects. When
+present, `incident`, `title`, and `severity` must be strings. Each action's `id`,
+`target`, `action`, `message`, `approval`, `rollback`, and `evidence` fields must
+also be strings. These fields may be omitted so the documented defaults still
+apply; explicit arrays, objects, numbers, booleans, and `null` are rejected.
 
 ```json
 {
@@ -76,8 +80,9 @@ usage errors. They write a diagnostic to stderr and exit with status `1` without
 printing a plan. `--help` prints the usage and exits with status `0`.
 
 Unreadable briefs, invalid JSON, non-object JSON roots, non-array `actions`
-values, and non-object action members are input errors. They also write one
-diagnostic to stderr, print no plan, and exit with status `1`. Markdown output
+values, non-object action members, and non-string scalar or action fields are
+input errors. They also write one diagnostic to stderr, print no plan, and exit
+with status `1`. Markdown output
 escapes pipe characters and renders line breaks as spaces inside table cells.
 
 External connector actions must include evidence notes, such as a dry-run payload, tracking issue URL, or receipt path. Local notes do not require evidence.
