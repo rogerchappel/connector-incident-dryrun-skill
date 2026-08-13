@@ -84,3 +84,27 @@ test('cli reports invalid JSON action members without producing a plan', (t) => 
     assert.deepEqual(stderr, ['Invalid JSON brief: "actions[1]" must be an object']);
   }
 });
+
+test('cli rejects non-string JSON fields without producing a plan', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-fields-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const cases = [
+    ...['incident', 'title', 'severity'].map((field) => ({
+      body: { [field]: false },
+      path: field
+    })),
+    ...['id', 'target', 'action', 'message', 'approval', 'rollback', 'evidence'].map((field) => ({
+      body: { actions: [{ [field]: { invalid: true } }] },
+      path: `actions[0].${field}`
+    }))
+  ];
+
+  for (const [index, { body, path: fieldPath }] of cases.entries()) {
+    const file = path.join(directory, `${index}.json`);
+    fs.writeFileSync(file, JSON.stringify(body));
+    const { io, stdout, stderr } = capture();
+    assert.equal(run(['plan', file, '--format', 'json'], io), 1);
+    assert.deepEqual(stdout, []);
+    assert.deepEqual(stderr, [`Invalid JSON brief: "${fieldPath}" must be a string`]);
+  }
+});

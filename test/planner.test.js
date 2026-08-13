@@ -41,6 +41,49 @@ test('rejects non-object JSON action members', () => {
   }
 });
 
+test('rejects non-string JSON brief scalar fields', () => {
+  for (const field of ['incident', 'title', 'severity']) {
+    for (const value of [null, [], {}, 7, false]) {
+      assert.throws(() => parseJsonBrief(JSON.stringify({ [field]: value })), {
+        message: `Invalid JSON brief: "${field}" must be a string`
+      });
+    }
+  }
+});
+
+test('rejects non-string JSON action fields with an indexed path', () => {
+  const fields = ['id', 'target', 'action', 'message', 'approval', 'rollback', 'evidence'];
+  for (const field of fields) {
+    for (const value of [null, [], {}, 7, false]) {
+      const actions = [{ target: 'notes' }, { [field]: value }];
+      assert.throws(() => parseJsonBrief(JSON.stringify({ actions })), {
+        message: `Invalid JSON brief: "actions[1].${field}" must be a string`
+      });
+    }
+  }
+});
+
+test('retains JSON string values and supported defaults for omitted fields', () => {
+  const brief = parseJsonBrief(JSON.stringify({
+    title: 'Fallback title',
+    severity: 'sev2',
+    actions: [{ id: 'note-1', action: 'post', message: 'Observe', rollback: 'Remove note', evidence: '' }]
+  }));
+  assert.equal(brief.incident, 'Fallback title');
+  assert.equal(brief.severity, 'sev2');
+  assert.deepEqual(brief.actions[0], {
+    id: 'note-1',
+    target: 'notes',
+    action: 'post',
+    message: 'Observe',
+    approval: 'optional',
+    rollback: 'Remove note',
+    evidence: '',
+    sideEffect: 'local-note',
+    issues: []
+  });
+});
+
 test('allows a JSON brief to omit actions', () => {
   const brief = parseJsonBrief('{"incident":"Observation only"}');
   assert.deepEqual(brief.actions, []);
