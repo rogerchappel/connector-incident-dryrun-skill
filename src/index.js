@@ -26,9 +26,15 @@ export function parseJsonBrief(body, source = 'inline.json') {
   if (Object.hasOwn(parsed, 'actions') && !Array.isArray(parsed.actions)) {
     throw new Error('Invalid JSON brief: "actions" must be an array');
   }
+  for (const field of ['incident', 'title', 'severity']) {
+    assertOptionalString(parsed, field, field);
+  }
   for (const [index, action] of (parsed.actions ?? []).entries()) {
     if (action === null || Array.isArray(action) || typeof action !== 'object') {
       throw new Error(`Invalid JSON brief: "actions[${index}]" must be an object`);
+    }
+    for (const field of ['id', 'target', 'action', 'message', 'approval', 'rollback', 'evidence']) {
+      assertOptionalString(action, field, `actions[${index}].${field}`);
     }
   }
   return {
@@ -37,6 +43,12 @@ export function parseJsonBrief(body, source = 'inline.json') {
     severity: parsed.severity || 'unknown',
     actions: normalizeActions(parsed.actions ?? [])
   };
+}
+
+function assertOptionalString(object, field, path) {
+  if (Object.hasOwn(object, field) && typeof object[field] !== 'string') {
+    throw new Error(`Invalid JSON brief: "${path}" must be a string`);
+  }
 }
 
 export function parseMarkdownBrief(body, source = 'inline.md') {

@@ -13,14 +13,18 @@ all other targets default to `required`; explicit approval values are preserved.
 
 JSON briefs must use an object at the document root. The optional `actions` field
 defaults to an empty array; when present, it must be an array of action objects
-with `target`, `action`, `message`, `approval`, and `rollback` fields. Valid
-approval values are `required`, `optional`, and `preapproved`.
+with optional `id`, `target`, `action`, `message`, `approval`, `rollback`, and
+`evidence` fields. The root's optional `incident`, `title`, and `severity` fields
+and every listed action field must be strings when present. Omitting fields keeps
+the parser defaults; explicit arrays, objects, numbers, booleans, and `null` are
+rejected. Valid approval strings are `required`, `optional`, and `preapproved`.
 
 Malformed JSON, non-object roots (including `null`, arrays, and scalars), and
 non-array `actions` values are rejected as input errors. Every member of
 `actions` must itself be an object; `null`, arrays, and scalar members are also
-rejected. The CLI writes a concise diagnostic to stderr, prints no plan, and
-exits with status `1`.
+rejected. Invalid field diagnostics include the exact field path, including the
+action index. The CLI writes the concise diagnostic to stderr, prints no plan,
+and exits with status `1`.
 
 Markdown plans escape `|` as `\|` and replace line breaks with spaces in every
 table cell. Each action therefore remains a single row with exactly seven cells,
