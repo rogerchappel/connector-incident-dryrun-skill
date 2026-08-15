@@ -74,6 +74,8 @@ connector-incident-dryrun plan <brief.md|brief.json> [--format markdown|json] [-
 approval` exits with status `2` when the plan contains approval-required actions,
 while `--fail-on issues` exits with status `2` when any action has validation
 issues.
+Each value option may be supplied only once; duplicate `--format` or `--fail-on`
+options are rejected with status `1` before a plan is produced.
 
 Unknown options, missing option values, and values outside the choices above are
 usage errors. They write a diagnostic to stderr and exit with status `1` without
