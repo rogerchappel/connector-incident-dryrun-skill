@@ -72,7 +72,7 @@ export function parseMarkdownBrief(body, source = 'inline.md') {
 }
 
 function readToken(text, key) {
-  const match = text.match(new RegExp(`${key}=([^;]+)`, 'i'));
+  const match = text.match(new RegExp(`(?:^|;)\\s*${key}=([^;]+)`, 'i'));
   return match?.[1]?.trim();
 }
 
