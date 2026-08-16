@@ -17,6 +17,7 @@ function parseArgs(argv) {
       continue;
     }
     if (!OPTIONS.has(key)) throw new Error(`Unknown option: --${key}`);
+    if (Object.hasOwn(args, key)) throw new Error(`Duplicate option: --${key}`);
     const next = argv[i + 1];
     if (!next || next.startsWith('--')) throw new Error(`Missing value for --${key}`);
     args[key] = next;

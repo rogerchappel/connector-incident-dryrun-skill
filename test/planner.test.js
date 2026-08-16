@@ -122,6 +122,13 @@ test('retains explicit markdown approval when normalizing target case', () => {
   assert.equal(plan.actions[0].approval, 'required');
 });
 
+test('does not parse field names embedded inside markdown values', () => {
+  const plan = parseMarkdownBrief('# Test\nSeverity: sev2\n\n- [slack] action=post; message=Status disapproval=optional; rollback=delete; evidence=ticket-1');
+  assert.equal(plan.actions[0].message, 'Status disapproval=optional');
+  assert.equal(plan.actions[0].approval, 'required');
+  assert.deepEqual(plan.actions[0].issues, []);
+});
+
 test('requires evidence for external connector side effects', () => {
   const plan = parseMarkdownBrief('# Test\nSeverity: sev3\n\n- [slack] action=post; message=hello; approval=required; rollback=delete message');
   assert.equal(plan.actions[0].issues.includes('missing evidence'), true);

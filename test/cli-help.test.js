@@ -28,7 +28,9 @@ test('CLI entrypoint reports each invalid argument class on stderr', () => {
     { args: ['plan', 'fixtures/slack-update.md', '--bogus', 'value'], error: 'Unknown option: --bogus' },
     { args: ['plan', 'fixtures/slack-update.md', '--format'], error: 'Missing value for --format' },
     { args: ['plan', 'fixtures/slack-update.md', '--format', 'yaml'], error: 'Invalid --format value: yaml (expected markdown or json)' },
-    { args: ['plan', 'fixtures/slack-update.md', '--fail-on', 'nonsense'], error: 'Invalid --fail-on value: nonsense (expected approval or issues)' }
+    { args: ['plan', 'fixtures/slack-update.md', '--fail-on', 'nonsense'], error: 'Invalid --fail-on value: nonsense (expected approval or issues)' },
+    { args: ['plan', 'fixtures/slack-update.md', '--format', 'json', '--format', 'markdown'], error: 'Duplicate option: --format' },
+    { args: ['plan', 'fixtures/slack-update.md', '--fail-on', 'approval', '--fail-on', 'issues'], error: 'Duplicate option: --fail-on' }
   ];
 
   for (const { args, error } of cases) {

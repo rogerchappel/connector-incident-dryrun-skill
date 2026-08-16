@@ -32,12 +32,26 @@ test('cli can fail on approval requirements', () => {
   assert.deepEqual(stderr, []);
 });
 
+test('cli preserves approval gating when a message contains a field-name substring', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-substring-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const file = path.join(directory, 'brief.md');
+  fs.writeFileSync(file, '# Test\n\n- [slack] action=post; message=Status disapproval=optional; rollback=delete; evidence=ticket-1');
+  const { io, stdout, stderr } = capture();
+  assert.equal(run(['plan', file, '--format', 'json', '--fail-on', 'approval'], io), 2);
+  assert.match(stdout.join('\n'), /"approvalRequired": 1/);
+  assert.match(stdout.join('\n'), /"approval": "required"/);
+  assert.deepEqual(stderr, []);
+});
+
 test('cli rejects invalid argument contracts without producing a plan', () => {
   const cases = [
     { argv: ['plan', 'fixtures/slack-update.md', '--bogus', 'value'], error: 'Unknown option: --bogus' },
     { argv: ['plan', 'fixtures/slack-update.md', '--format'], error: 'Missing value for --format' },
     { argv: ['plan', 'fixtures/slack-update.md', '--format', 'yaml'], error: 'Invalid --format value: yaml (expected markdown or json)' },
-    { argv: ['plan', 'fixtures/slack-update.md', '--fail-on', 'nonsense'], error: 'Invalid --fail-on value: nonsense (expected approval or issues)' }
+    { argv: ['plan', 'fixtures/slack-update.md', '--fail-on', 'nonsense'], error: 'Invalid --fail-on value: nonsense (expected approval or issues)' },
+    { argv: ['plan', 'fixtures/slack-update.md', '--format', 'json', '--format', 'markdown'], error: 'Duplicate option: --format' },
+    { argv: ['plan', 'fixtures/slack-update.md', '--fail-on', 'approval', '--fail-on', 'issues'], error: 'Duplicate option: --fail-on' }
   ];
 
   for (const { argv, error } of cases) {
