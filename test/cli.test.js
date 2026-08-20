@@ -99,6 +99,24 @@ test('cli reports invalid JSON action members without producing a plan', (t) => 
   }
 });
 
+test('cli --fail-on issues distinguishes omitted and blank JSON actions', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-action-default-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+
+  for (const [name, action, expectedStatus, expectedIssues] of [
+    ['omitted', { message: 'Observe', rollback: 'Remove note' }, 0, '"issues": []'],
+    ['blank', { action: '', message: 'Observe', rollback: 'Remove note' }, 2, '"issues": [']
+  ]) {
+    const file = path.join(directory, `${name}.json`);
+    fs.writeFileSync(file, JSON.stringify({ incident: 'Test', actions: [action] }));
+    const { io, stdout, stderr } = capture();
+    assert.equal(run(['plan', file, '--format', 'json', '--fail-on', 'issues'], io), expectedStatus);
+    assert.match(stdout.join('\n'), new RegExp(expectedIssues.replace(/[\[\]]/g, '\\$&')));
+    if (name === 'blank') assert.match(stdout.join('\n'), /"missing action"/);
+    assert.deepEqual(stderr, []);
+  }
+});
+
 test('cli rejects non-string JSON fields without producing a plan', (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-fields-'));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
