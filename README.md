@@ -32,8 +32,11 @@ A JSON brief must have an object at its root. `actions` may be omitted (an empty
 list is assumed), but when present it must be an array of action objects. When
 present, `incident`, `title`, and `severity` must be strings. Each action's `id`,
 `target`, `action`, `message`, `approval`, `rollback`, and `evidence` fields must
-also be strings. These fields may be omitted so the documented defaults still
-apply; explicit arrays, objects, numbers, booleans, and `null` are rejected.
+also be strings. An omitted `action` defaults to `post`; an explicitly blank
+`action` remains blank and is reported as `missing action` (so `--fail-on
+issues` exits with status `2`). Other fields may likewise be omitted so their
+documented defaults apply. Explicit arrays, objects, numbers, booleans, and
+`null` are rejected.
 
 ```json
 {
