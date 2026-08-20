@@ -89,6 +89,20 @@ test('allows a JSON brief to omit actions', () => {
   assert.deepEqual(brief.actions, []);
 });
 
+test('validates the normalized default action for omitted versus blank JSON values', () => {
+  const omitted = parseJsonBrief(JSON.stringify({
+    actions: [{ message: 'Observe', rollback: 'Remove note' }]
+  })).actions[0];
+  assert.equal(omitted.action, 'post');
+  assert.deepEqual(omitted.issues, []);
+
+  const blank = parseJsonBrief(JSON.stringify({
+    actions: [{ action: '  ', message: 'Observe', rollback: 'Remove note' }]
+  })).actions[0];
+  assert.equal(blank.action, '  ');
+  assert.deepEqual(blank.issues, ['missing action']);
+});
+
 test('reports missing rollback as issue', () => {
   const plan = parseMarkdownBrief('# Test\nSeverity: sev3\n\n- [jira] action=comment; message=hello; approval=required');
   assert.equal(plan.actions[0].issues.includes('missing rollback'), true);
