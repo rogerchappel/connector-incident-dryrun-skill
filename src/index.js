@@ -92,17 +92,17 @@ export function normalizeActions(actions) {
     const target = String(action.target || 'notes').toLowerCase();
     const approval = action.approval || inferApproval(target);
     const sideEffect = TARGET_SIDE_EFFECT[target] || 'external-write';
-    return {
+    const normalized = {
       id: action.id || `action-${index + 1}`,
       target,
-      action: action.action || 'post',
+      action: Object.hasOwn(action, 'action') ? action.action : 'post',
       message: action.message || '',
       approval,
       rollback: action.rollback || '',
       evidence: action.evidence || '',
-      sideEffect,
-      issues: validateAction({ ...action, target, approval, sideEffect })
+      sideEffect
     };
+    return { ...normalized, issues: validateAction(normalized) };
   });
 }
 
