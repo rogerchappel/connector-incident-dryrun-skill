@@ -123,6 +123,23 @@ test('parses indented markdown action bullets without dropping fields', () => {
   });
 });
 
+test('preserves connector-only markdown targets and reports every required field', () => {
+  for (const suffix of ['', '   ']) {
+    const plan = parseMarkdownBrief(`# Test\n\n- [slack]${suffix}`);
+    assert.deepEqual(plan.actions[0], {
+      id: 'action-1',
+      target: 'slack',
+      action: '',
+      message: '',
+      approval: 'required',
+      rollback: '',
+      evidence: '',
+      sideEffect: 'external-message',
+      issues: ['missing action', 'missing message', 'missing rollback', 'missing evidence']
+    });
+  }
+});
+
 test('normalizes markdown target case before inferring default approval', () => {
   const plan = parseMarkdownBrief('# Test\nSeverity: sev3\n\n- [Notes] action=note; message=local note; rollback=remove note');
   assert.equal(plan.actions[0].target, 'notes');

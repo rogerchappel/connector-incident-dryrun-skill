@@ -56,12 +56,12 @@ export function parseMarkdownBrief(body, source = 'inline.md') {
   const severity = body.match(/^Severity:\s*(.+)$/mi)?.[1]?.trim() || 'unknown';
   const actionLines = body.split('\n').map((line) => line.trim()).filter((line) => /^-\s*\[[^\]]+\]/.test(line));
   const actions = actionLines.map((line) => {
-    const match = line.match(/^-\s*\[([^\]]+)\]\s*(.+)$/);
+    const match = line.match(/^-\s*\[([^\]]+)\]\s*(.*)$/);
     const target = (match?.[1]?.trim() || 'notes').toLowerCase();
     const rest = match?.[2] || '';
     return {
       target,
-      action: readToken(rest, 'action') || inferAction(rest),
+      action: readToken(rest, 'action') || (rest ? inferAction(rest) : ''),
       message: readToken(rest, 'message') || rest.replace(/\s*(approval|rollback|action)=.*$/i, '').trim(),
       approval: readToken(rest, 'approval') || inferApproval(target),
       rollback: readToken(rest, 'rollback') || '',

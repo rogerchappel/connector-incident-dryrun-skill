@@ -44,6 +44,24 @@ test('cli preserves approval gating when a message contains a field-name substri
   assert.deepEqual(stderr, []);
 });
 
+test('cli keeps connector-only bullets externally gated with or without trailing whitespace', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-only-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+
+  for (const [index, suffix] of ['', '   '].entries()) {
+    const file = path.join(directory, `${index}.md`);
+    fs.writeFileSync(file, `# Test\n\n- [slack]${suffix}`);
+    const { io, stdout, stderr } = capture();
+    assert.equal(run(['plan', file, '--format', 'json', '--fail-on', 'issues'], io), 2);
+    const plan = JSON.parse(stdout.join('\n'));
+    assert.equal(plan.actions[0].target, 'slack');
+    assert.equal(plan.actions[0].sideEffect, 'external-message');
+    assert.equal(plan.actions[0].approval, 'required');
+    assert.deepEqual(plan.actions[0].issues, ['missing action', 'missing message', 'missing rollback', 'missing evidence']);
+    assert.deepEqual(stderr, []);
+  }
+});
+
 test('cli rejects invalid argument contracts without producing a plan', () => {
   const cases = [
     { argv: ['plan', 'fixtures/slack-update.md', '--bogus', 'value'], error: 'Unknown option: --bogus' },
