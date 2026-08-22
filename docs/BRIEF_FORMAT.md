@@ -18,12 +18,17 @@ JSON briefs must use an object at the document root. The optional `actions` fiel
 defaults to an empty array; when present, it must be an array of action objects
 with optional `id`, `target`, `action`, `message`, `approval`, `rollback`, and
 `evidence` fields. The root's optional `incident`, `title`, and `severity` fields
-and every listed action field must be strings when present. An omitted `action`
-defaults to `post`. An explicitly empty or whitespace-only `action` is retained
-and reported as `missing action`, which makes `--fail-on issues` exit with status
-`2`. Other omitted fields keep their parser defaults; explicit arrays, objects,
-numbers, booleans, and `null` are rejected. Valid approval strings are
-`required`, `optional`, and `preapproved`.
+and every listed action field must be strings when present. Omitted brief
+metadata uses `title` and then `Untitled incident` for the incident, and
+`unknown` for severity. Omitted action fields use a generated `id`, target
+`notes`, action `post`, and target-derived approval (`optional` for `notes`,
+otherwise `required`). Explicitly empty or whitespace-only values are retained,
+not defaulted. Required blank action fields are reported as missing; in
+particular, a blank target remains an unknown `external-write`, retains external
+evidence requirements, and cannot downgrade to `local-note`. These issues make
+`--fail-on issues` exit with status `2`. Explicit arrays, objects, numbers,
+booleans, and `null` are rejected. Valid approval strings are `required`,
+`optional`, and `preapproved`.
 
 Malformed JSON, non-object roots (including `null`, arrays, and scalars), and
 non-array `actions` values are rejected as input errors. Every member of
