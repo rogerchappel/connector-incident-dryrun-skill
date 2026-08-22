@@ -39,8 +39,10 @@ export function parseJsonBrief(body, source = 'inline.json') {
   }
   return {
     source,
-    incident: parsed.incident || parsed.title || 'Untitled incident',
-    severity: parsed.severity || 'unknown',
+    incident: Object.hasOwn(parsed, 'incident')
+      ? parsed.incident
+      : (Object.hasOwn(parsed, 'title') ? parsed.title : 'Untitled incident'),
+    severity: Object.hasOwn(parsed, 'severity') ? parsed.severity : 'unknown',
     actions: normalizeActions(parsed.actions ?? [])
   };
 }
@@ -89,11 +91,11 @@ function inferApproval(target) {
 
 export function normalizeActions(actions) {
   return actions.map((action, index) => {
-    const target = String(action.target || 'notes').toLowerCase();
-    const approval = action.approval || inferApproval(target);
+    const target = String(Object.hasOwn(action, 'target') ? action.target : 'notes').toLowerCase();
+    const approval = Object.hasOwn(action, 'approval') ? action.approval : inferApproval(target);
     const sideEffect = TARGET_SIDE_EFFECT[target] || 'external-write';
     const normalized = {
-      id: action.id || `action-${index + 1}`,
+      id: Object.hasOwn(action, 'id') ? action.id : `action-${index + 1}`,
       target,
       action: Object.hasOwn(action, 'action') ? action.action : 'post',
       message: action.message || '',
@@ -108,7 +110,7 @@ export function normalizeActions(actions) {
 
 export function validateAction(action) {
   const issues = [];
-  for (const field of ['target', 'action', 'message', 'approval', 'rollback']) {
+  for (const field of ['id', 'target', 'action', 'message', 'approval', 'rollback']) {
     if (!action[field] || String(action[field]).trim() === '') issues.push(`missing ${field}`);
   }
   if (action.sideEffect !== 'local-note' && (!action.evidence || String(action.evidence).trim() === '')) {

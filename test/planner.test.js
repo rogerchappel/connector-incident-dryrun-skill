@@ -103,6 +103,63 @@ test('validates the normalized default action for omitted versus blank JSON valu
   assert.deepEqual(blank.issues, ['missing action']);
 });
 
+test('preserves explicit blank JSON fields and keeps blank targets externally gated', () => {
+  const brief = parseJsonBrief(JSON.stringify({
+    incident: '  ',
+    severity: '',
+    actions: [{
+      id: '',
+      target: '  ',
+      action: '',
+      message: '',
+      approval: ' ',
+      rollback: '',
+      evidence: ''
+    }]
+  }));
+
+  assert.equal(brief.incident, '  ');
+  assert.equal(brief.severity, '');
+  assert.deepEqual(brief.actions[0], {
+    id: '',
+    target: '  ',
+    action: '',
+    message: '',
+    approval: ' ',
+    rollback: '',
+    evidence: '',
+    sideEffect: 'external-write',
+    issues: [
+      'missing id',
+      'missing target',
+      'missing action',
+      'missing message',
+      'missing approval',
+      'missing rollback',
+      'missing evidence',
+      'invalid approval  '
+    ]
+  });
+});
+
+test('defaults omitted target fields without treating explicit blanks as omitted', () => {
+  const [omitted, blank] = parseJsonBrief(JSON.stringify({
+    actions: [
+      { message: 'Observe', rollback: 'Remove note' },
+      { target: '', message: 'Observe', rollback: 'Undo external write' }
+    ]
+  })).actions;
+
+  assert.equal(omitted.target, 'notes');
+  assert.equal(omitted.approval, 'optional');
+  assert.equal(omitted.sideEffect, 'local-note');
+  assert.deepEqual(omitted.issues, []);
+  assert.equal(blank.target, '');
+  assert.equal(blank.approval, 'required');
+  assert.equal(blank.sideEffect, 'external-write');
+  assert.deepEqual(blank.issues, ['missing target', 'missing evidence']);
+});
+
 test('reports missing rollback as issue', () => {
   const plan = parseMarkdownBrief('# Test\nSeverity: sev3\n\n- [jira] action=comment; message=hello; approval=required');
   assert.equal(plan.actions[0].issues.includes('missing rollback'), true);

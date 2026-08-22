@@ -135,6 +135,31 @@ test('cli --fail-on issues distinguishes omitted and blank JSON actions', (t) =>
   }
 });
 
+test('cli --fail-on issues conservatively reports explicit blank JSON fields', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-blank-fields-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const file = path.join(directory, 'brief.json');
+  fs.writeFileSync(file, JSON.stringify({
+    actions: [{ id: ' ', target: '', action: '', message: '', approval: '', rollback: '' }]
+  }));
+
+  const { io, stdout, stderr } = capture();
+  assert.equal(run(['plan', file, '--format', 'json', '--fail-on', 'issues'], io), 2);
+  const plan = JSON.parse(stdout.join('\n'));
+  assert.equal(plan.actions[0].target, '');
+  assert.equal(plan.actions[0].sideEffect, 'external-write');
+  assert.deepEqual(plan.actions[0].issues, [
+    'missing id',
+    'missing target',
+    'missing action',
+    'missing message',
+    'missing approval',
+    'missing rollback',
+    'missing evidence'
+  ]);
+  assert.deepEqual(stderr, []);
+});
+
 test('cli rejects non-string JSON fields without producing a plan', (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-fields-'));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
