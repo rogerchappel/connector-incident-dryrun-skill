@@ -25,6 +25,24 @@ test('cli emits markdown plans', () => {
   assert.deepEqual(stderr, []);
 });
 
+test('cli protects multiline markdown controls in JSON metadata', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-metadata-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const file = path.join(directory, 'brief.json');
+  fs.writeFileSync(file, JSON.stringify({
+    incident: 'Checkout\n## injected heading',
+    severity: 'sev1\n- injected item',
+    actions: []
+  }));
+  const { io, stdout, stderr } = capture();
+
+  assert.equal(run(['plan', file, '--format', 'markdown'], io), 0);
+  assert.match(stdout.join('\n'), /Incident: Checkout \\#\\# injected heading/);
+  assert.match(stdout.join('\n'), /Severity: sev1 \\- injected item/);
+  assert.doesNotMatch(stdout.join('\n'), /^(?:## injected heading|- injected item)$/m);
+  assert.deepEqual(stderr, []);
+});
+
 test('cli can fail on approval requirements', () => {
   const { io, stdout, stderr } = capture();
   assert.equal(run(['plan', 'fixtures/slack-update.md', '--format', 'json', '--fail-on', 'approval'], io), 2);

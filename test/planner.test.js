@@ -228,6 +228,22 @@ test('formats markdown and json reports', () => {
   assert.match(formatPlan(plan, 'json'), /"approvalRequired": 2/);
 });
 
+test('keeps incident and severity metadata inside markdown prose', () => {
+  const plan = parseJsonBrief(JSON.stringify({
+    incident: 'Checkout\n## injected [link](https://example.test)',
+    severity: 'sev1\r\n- injected `code`',
+    actions: []
+  }));
+  const markdown = formatPlan({
+    ...plan,
+    summary: { total: 0, approvalRequired: 0, withIssues: 0 }
+  }, 'markdown');
+
+  assert.ok(markdown.includes('Incident: Checkout \\#\\# injected \\[link\\]\\(https://example\\.test\\)'));
+  assert.ok(markdown.includes('Severity: sev1 \\- injected \\`code\\`'));
+  assert.doesNotMatch(markdown, /^(?:## injected|- injected)/m);
+});
+
 test('escapes pipes and normalizes newlines in every markdown table cell', () => {
   const plan = parseJsonBrief(JSON.stringify({
     incident: 'Formatting',
