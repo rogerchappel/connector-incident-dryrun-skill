@@ -148,8 +148,8 @@ export function formatPlan(plan, format = 'markdown') {
   return [
     '# Connector Incident Dry-Run Plan',
     '',
-    `Incident: ${plan.incident}`,
-    `Severity: ${plan.severity}`,
+    `Incident: ${formatMarkdownText(plan.incident)}`,
+    `Severity: ${formatMarkdownText(plan.severity)}`,
     `Actions: ${plan.summary.total}`,
     `Approval required: ${plan.summary.approvalRequired}`,
     `Actions with issues: ${plan.summary.withIssues}`,
@@ -158,6 +158,14 @@ export function formatPlan(plan, format = 'markdown') {
     '| --- | --- | --- | --- | --- | --- | --- |',
     ...rows
   ].join('\n');
+}
+
+function formatMarkdownText(value) {
+  return String(value)
+    .replace(/\r\n?|\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/([\\`*_{}\[\]()<>#+.!|\-])/g, '\\$1');
 }
 
 function formatMarkdownCell(value) {

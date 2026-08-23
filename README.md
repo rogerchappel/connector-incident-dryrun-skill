@@ -91,8 +91,11 @@ printing a plan. `--help` prints the usage and exits with status `0`.
 Unreadable briefs, invalid JSON, non-object JSON roots, non-array `actions`
 values, non-object action members, and non-string scalar or action fields are
 input errors. They also write one diagnostic to stderr, print no plan, and exit
-with status `1`. Markdown output
-escapes pipe characters and renders line breaks as spaces inside table cells.
+with status `1`. Markdown output collapses line breaks and repeated whitespace
+in incident and severity metadata, then escapes Markdown control punctuation so
+those values remain readable prose rather than creating headings, lists, links,
+code blocks, or other sibling structure. Table cells continue to escape pipe
+characters and render line breaks as spaces.
 
 External connector actions must include evidence notes, such as a dry-run payload, tracking issue URL, or receipt path. Local notes do not require evidence.
 
