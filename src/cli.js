@@ -12,10 +12,6 @@ function parseArgs(argv) {
       continue;
     }
     const key = token.slice(2);
-    if (key === 'help') {
-      args.help = true;
-      continue;
-    }
     if (!OPTIONS.has(key)) throw new Error(`Unknown option: --${key}`);
     if (Object.hasOwn(args, key)) throw new Error(`Duplicate option: --${key}`);
     const next = argv[i + 1];
@@ -27,6 +23,15 @@ function parseArgs(argv) {
 }
 
 export function run(argv = process.argv.slice(2), io = console) {
+  if (argv.includes('--help')) {
+    if (argv.length !== 1) {
+      io.error('--help must be used by itself');
+      return 1;
+    }
+    io.log(USAGE);
+    return 0;
+  }
+
   let args;
   try {
     args = parseArgs(argv);
@@ -36,7 +41,7 @@ export function run(argv = process.argv.slice(2), io = console) {
   }
 
   const [command, file] = args._;
-  if (!command || args.help) {
+  if (!command) {
     io.log(USAGE);
     return 0;
   }
