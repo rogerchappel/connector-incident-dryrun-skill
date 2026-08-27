@@ -86,7 +86,10 @@ options are rejected with status `1` before a plan is produced.
 
 Unknown options, missing option values, and values outside the choices above are
 usage errors. They write a diagnostic to stderr and exit with status `1` without
-printing a plan. `--help` prints the usage and exits with status `0`.
+printing a plan. `--help` is a standalone invocation: by itself it prints the
+usage and exits with status `0`. Combining `--help` with `plan`, a brief path,
+an option, or any other argument is a usage error that writes to stderr and
+exits with status `1` without reading a brief or printing a plan.
 
 Unreadable briefs, invalid JSON, non-object JSON roots, non-array `actions`
 values, non-object action members, and non-string scalar or action fields are
