@@ -16,6 +16,19 @@ test('CLI help entrypoint prints usage', () => {
   assert.equal(result.stderr, '');
 });
 
+test('CLI entrypoint rejects --help combined with other arguments', () => {
+  for (const args of [
+    ['plan', 'fixtures/slack-update.md', '--help'],
+    ['--help', 'unexpected'],
+    ['--help', '--format', 'json']
+  ]) {
+    const result = invoke(...args);
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, '');
+    assert.equal(result.stderr, '--help must be used by itself\n');
+  }
+});
+
 test('CLI plan entrypoint writes a plan to stdout', () => {
   const result = invoke('plan', 'fixtures/slack-update.md', '--format', 'json');
   assert.equal(result.status, 0);
