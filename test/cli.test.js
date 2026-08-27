@@ -82,6 +82,9 @@ test('cli keeps connector-only bullets externally gated with or without trailing
 
 test('cli rejects invalid argument contracts without producing a plan', () => {
   const cases = [
+    { argv: ['plan', 'fixtures/slack-update.md', '--help'], error: '--help must be used by itself' },
+    { argv: ['--help', 'unexpected'], error: '--help must be used by itself' },
+    { argv: ['--help', '--format', 'json'], error: '--help must be used by itself' },
     { argv: ['plan', 'fixtures/slack-update.md', '--bogus', 'value'], error: 'Unknown option: --bogus' },
     { argv: ['plan', 'fixtures/slack-update.md', '--format'], error: 'Missing value for --format' },
     { argv: ['plan', 'fixtures/slack-update.md', '--format', 'yaml'], error: 'Invalid --format value: yaml (expected markdown or json)' },
