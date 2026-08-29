@@ -25,6 +25,14 @@
   ],
   "author": "Roger Chappel",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/connector-incident-dryrun-skill.git"
+  },
+  "homepage": "https://github.com/rogerchappel/connector-incident-dryrun-skill#readme",
+  "bugs": {
+    "url": "https://github.com/rogerchappel/connector-incident-dryrun-skill/issues"
+  },
   "engines": {
     "node": ">=20"
   },
