@@ -12,7 +12,10 @@ case-insensitive. If `approval` is omitted, `notes` defaults to `optional` and
 all other targets default to `required`; explicit approval values are preserved.
 Field names are recognized only at the start of the action text or immediately
 after a semicolon, so text such as `message=Status disapproval=optional` does not
-set the `approval` field.
+set the `approval` field. Recognized fields may appear in any order. If any
+recognized field is present, `message` must be supplied explicitly; other field
+text is never promoted into a missing message. With no recognized fields, plain
+action prose remains the message and the action is inferred for compatibility.
 
 JSON briefs must use an object at the document root. The optional `actions` field
 defaults to an empty array; when present, it must be an array of action objects
