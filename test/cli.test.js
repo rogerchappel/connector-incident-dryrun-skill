@@ -62,6 +62,26 @@ test('cli preserves approval gating when a message contains a field-name substri
   assert.deepEqual(stderr, []);
 });
 
+test('cli --fail-on issues rejects recognized fields without a message in any order', (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-field-order-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const permutations = [
+    'evidence=ticket-1; approval=required; rollback=delete; action=post',
+    'action=post; evidence=ticket-1; rollback=delete; approval=required'
+  ];
+
+  for (const [index, fields] of permutations.entries()) {
+    const file = path.join(directory, `${index}.md`);
+    fs.writeFileSync(file, `# Test\n\n- [slack] ${fields}`);
+    const { io, stdout, stderr } = capture();
+    assert.equal(run(['plan', file, '--format', 'json', '--fail-on', 'issues'], io), 2);
+    const plan = JSON.parse(stdout.join('\n'));
+    assert.equal(plan.actions[0].message, '');
+    assert.deepEqual(plan.actions[0].issues, ['missing message']);
+    assert.deepEqual(stderr, []);
+  }
+});
+
 test('cli keeps connector-only bullets externally gated with or without trailing whitespace', (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'connector-only-'));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
