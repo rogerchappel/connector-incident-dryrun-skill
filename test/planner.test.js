@@ -217,6 +217,26 @@ test('does not parse field names embedded inside markdown values', () => {
   assert.deepEqual(plan.actions[0].issues, []);
 });
 
+test('does not promote recognized markdown fields into an omitted message', () => {
+  const permutations = [
+    'evidence=ticket-1; approval=required; rollback=delete; action=post',
+    'action=post; rollback=delete; evidence=ticket-1; approval=required',
+    'rollback=delete; action=post; approval=required; evidence=ticket-1'
+  ];
+
+  for (const fields of permutations) {
+    const action = parseMarkdownBrief(`# Test\n\n- [slack] ${fields}`).actions[0];
+    assert.equal(action.message, '');
+    assert.equal(action.issues.includes('missing message'), true);
+  }
+});
+
+test('preserves plain prose as the markdown message fallback', () => {
+  const action = parseMarkdownBrief('# Test\n\n- [slack] Post incident update').actions[0];
+  assert.equal(action.message, 'Post incident update');
+  assert.equal(action.action, 'post');
+});
+
 test('requires evidence for external connector side effects', () => {
   const plan = parseMarkdownBrief('# Test\nSeverity: sev3\n\n- [slack] action=post; message=hello; approval=required; rollback=delete message');
   assert.equal(plan.actions[0].issues.includes('missing evidence'), true);

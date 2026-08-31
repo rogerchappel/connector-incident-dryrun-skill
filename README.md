@@ -25,6 +25,10 @@ Severity: sev2
 Action bullets may be indented, and connector target names are case-insensitive.
 When `approval` is omitted, `notes` defaults to `optional` and other targets
 default to `required`; an explicit approval value is retained.
+Fields may appear in any order. Once an action bullet uses a recognized field
+(`action`, `message`, `approval`, `rollback`, or `evidence`), `message` must be
+explicit; metadata is not used as a fallback message. A bullet containing only
+plain prose still uses that prose as its message and infers the action.
 
 ## JSON Brief Format
 
