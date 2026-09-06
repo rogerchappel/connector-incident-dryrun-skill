@@ -170,5 +170,8 @@ function formatMarkdownText(value) {
 }
 
 function formatMarkdownCell(value) {
-  return String(value).replace(/\r\n?|\n/g, ' ').replace(/\|/g, '\\|');
+  return String(value)
+    .replace(/\r\n?|\n/g, ' ')
+    .replace(/\\/g, '\\\\')
+    .replace(/\|/g, '\\|');
 }
