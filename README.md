@@ -101,8 +101,10 @@ input errors. They also write one diagnostic to stderr, print no plan, and exit
 with status `1`. Markdown output collapses line breaks and repeated whitespace
 in incident and severity metadata, then escapes Markdown control punctuation so
 those values remain readable prose rather than creating headings, lists, links,
-code blocks, or other sibling structure. Table cells continue to escape pipe
-characters and render line breaks as spaces.
+code blocks, or other sibling structure. Table cells preserve literal
+backslashes, escape pipe characters even when a pipe follows one or more
+backslashes, and render line breaks as spaces, so every action row remains a
+seven-column table row.
 
 External connector actions must include evidence notes, such as a dry-run payload, tracking issue URL, or receipt path. Local notes do not require evidence.
 
