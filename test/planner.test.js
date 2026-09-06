@@ -287,6 +287,51 @@ test('escapes pipes and normalizes newlines in every markdown table cell', () =>
   assert.equal(row.split(/(?<!\\)\|/).length - 1, 8);
 });
 
+test('preserves backslashes before pipes without creating table delimiters', () => {
+  const plan = parseJsonBrief(JSON.stringify({
+    incident: 'Backslash formatting',
+    actions: [
+      {
+        id: 'one\\|id',
+        target: 'one\\|target',
+        action: 'one\\|action',
+        message: 'message',
+        approval: 'one\\|approval',
+        rollback: 'one\\|rollback',
+        evidence: ''
+      },
+      {
+        id: 'many\\\\\\|id',
+        target: 'many\\\\\\|target',
+        action: 'many\\\\\\|action',
+        message: 'message',
+        approval: 'many\\\\\\|approval',
+        rollback: 'many\\\\\\|rollback',
+        evidence: ''
+      }
+    ]
+  }));
+
+  const markdown = formatPlan({
+    ...plan,
+    summary: { total: 2, approvalRequired: 0, withIssues: 2 }
+  }, 'markdown');
+  const rows = markdown.split('\n').filter((line) => /^\| (?:one|many)/.test(line));
+
+  assert.deepEqual(rows, [
+    '| one\\\\\\|id | one\\\\\\|target | one\\\\\\|action | external-write | one\\\\\\|approval | one\\\\\\|rollback | missing evidence, invalid approval one\\\\\\|approval |',
+    '| many\\\\\\\\\\\\\\|id | many\\\\\\\\\\\\\\|target | many\\\\\\\\\\\\\\|action | external-write | many\\\\\\\\\\\\\\|approval | many\\\\\\\\\\\\\\|rollback | missing evidence, invalid approval many\\\\\\\\\\\\\\|approval |'
+  ]);
+  for (const row of rows) {
+    const delimiters = [...row.matchAll(/\|/g)].filter(({ index }) => {
+      let backslashes = 0;
+      for (let cursor = index - 1; cursor >= 0 && row[cursor] === '\\'; cursor -= 1) backslashes += 1;
+      return backslashes % 2 === 0;
+    });
+    assert.equal(delimiters.length, 8);
+  }
+});
+
 test('classifies unknown connector targets as external writes', () => {
   const plan = parseMarkdownBrief('# Test\nSeverity: sev2\n\n- [webhook] action=post; message=notify system; approval=required; rollback=send correction; evidence=webhook dry-run payload');
   assert.equal(plan.actions[0].sideEffect, 'external-write');
