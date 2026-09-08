@@ -36,10 +36,6 @@
   "engines": {
     "node": ">=20"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rogerchappel/connector-incident-dryrun-skill.git"
-  },
   "files": [
     "bin",
     "src",
@@ -52,9 +48,5 @@
     "CONTRIBUTING.md",
     "CHANGELOG.md",
     "LICENSE"
-  ],
-  "bugs": {
-    "url": "https://github.com/rogerchappel/connector-incident-dryrun-skill/issues"
-  },
-  "homepage": "https://github.com/rogerchappel/connector-incident-dryrun-skill#readme"
+  ]
 }
