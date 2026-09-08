@@ -15,7 +15,8 @@
     "build": "node scripts/build.mjs",
     "smoke": "node scripts/smoke.mjs",
     "package:smoke": "node scripts/package-smoke.mjs",
-    "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke"
+    "manifest:check": "node scripts/validate-package-json.mjs",
+    "release:check": "npm run manifest:check && npm run check && npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [
     "agent-skills",
