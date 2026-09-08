@@ -75,6 +75,8 @@ npm run release:check
 npm pack --dry-run
 ```
 
+The release check validates the raw package manifest for duplicate top-level keys before parsing it, including the canonical repository, bugs, and homepage metadata.
+
 ## CLI
 
 ```bash
