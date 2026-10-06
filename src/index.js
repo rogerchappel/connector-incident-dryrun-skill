@@ -56,7 +56,14 @@ function assertOptionalString(object, field, path) {
 export function parseMarkdownBrief(body, source = 'inline.md') {
   const title = body.match(/^#\s+(.+)$/m)?.[1] || 'Untitled incident';
   const severity = body.match(/^Severity:\s*(.+)$/mi)?.[1]?.trim() || 'unknown';
-  const actionLines = body.split('\n').map((line) => line.trim()).filter((line) => /^-\s*\[[^\]]+\]/.test(line));
+  let inFence = false;
+  const actionLines = body.split('\n').filter((line) => {
+    if (/^\s*```/.test(line)) {
+      inFence = !inFence;
+      return false;
+    }
+    return !inFence && /^-\s*\[[^\]]+\]/.test(line.trim());
+  }).map((line) => line.trim());
   const actions = actionLines.map((line) => {
     const match = line.match(/^-\s*\[([^\]]+)\]\s*(.*)$/);
     const target = (match?.[1]?.trim() || 'notes').toLowerCase();

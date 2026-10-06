@@ -337,3 +337,23 @@ test('classifies unknown connector targets as external writes', () => {
   assert.equal(plan.actions[0].sideEffect, 'external-write');
   assert.equal(plan.actions[0].approval, 'required');
 });
+
+test('ignores checklist-like lines inside fenced markdown examples', () => {
+  const plan = parseMarkdownBrief([
+    '# Test',
+    '',
+    '- [slack] action=post; message=real; approval=required; rollback=delete; evidence=ticket-1',
+    '',
+    '```markdown',
+    '- [jira] action=comment; message=example; approval=required; rollback=delete; evidence=ticket-2',
+    '```',
+    '',
+    '- [notes] action=note; message=real note; rollback=remove note'
+  ].join('\n'));
+
+  assert.deepEqual(plan.actions.map(({ target, message }) => ({ target, message })), [
+    { target: 'slack', message: 'real' },
+    { target: 'notes', message: 'real note' }
+  ]);
+  assert.deepEqual(plan.actions[0].issues, []);
+});
